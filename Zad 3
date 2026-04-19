@@ -1,0 +1,45 @@
+from collections import deque
+
+historia: deque[str] = deque()
+bufor_dalej: deque[str] = deque()
+
+
+def odwiedz_strone(url: str) -> None:
+    historia.append(url)
+    bufor_dalej.clear()
+    print(f"Otwarto: {url}")
+
+
+def cofnij() -> None:
+    if len(historia) <= 1:
+        print("Nie można cofnąć – to pierwsza strona.")
+    else:
+        strona = historia.pop()
+        bufor_dalej.appendleft(strona)
+        print(f"Cofnięto do: {historia[-1]}")
+
+
+def dalej() -> None:
+    if not bufor_dalej:
+        print("Brak stron do przejścia dalej.")
+    else:
+        strona = bufor_dalej.popleft()
+        historia.append(strona)
+        print(f"Przejście do: {historia[-1]}")
+
+
+def wyswietl_historie() -> None:
+    if not historia:
+        print("Historia jest pusta.")
+        return
+
+    print("Historia przeglądania:")
+
+    for url in historia:
+        if url == historia[-1]:
+            print(f"  >> {url}  ← (bieżąca)")
+        else:
+            print(f"     {url}")
+
+    if bufor_dalej:
+        print("  (można przejść Dalej do:", bufor_dalej[0], ")")
