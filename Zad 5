@@ -1,0 +1,40 @@
+from collections import deque
+
+historia_operacji: deque[str] = deque()
+
+
+def wykonaj_operacje(opis: str) -> None:
+    historia_operacji.append(opis)
+    print(f"Wykonano: '{opis}'  [operacji na stosie: {len(historia_operacji)}]")
+
+
+def cofnij() -> None:
+    if not historia_operacji:
+        print("Brak operacji do cofnięcia.")
+    else:
+        operacja = historia_operacji.pop()
+        print(f"Cofnięto: '{operacja}'")
+        print(f"Pozostało na stosie: {len(historia_operacji)}")
+
+
+def podejrzyj_ostatnia() -> None:
+    if not historia_operacji:
+        print("Stos jest pusty – brak operacji.")
+    else:
+        print(f"Ostatnia operacja (peek): '{historia_operacji[-1]}'")
+
+
+def wyswietl_stos() -> None:
+    if not historia_operacji:
+        print("Stos operacji jest pusty.")
+        return
+
+    print(f"Historia operacji ({len(historia_operacji)} szt.) – wierzchołek na górze:")
+
+    for i, operacja in enumerate(reversed(historia_operacji), start=1):
+        if i == 1:
+            print(f"[TOP]  {i}. {operacja}   ← (ostatnia)")
+        elif i == len(historia_operacji):
+            print(f"[BOT]  {i}. {operacja}")
+        else:
+            print(f"       {i}. {operacja}")
