@@ -1,0 +1,35 @@
+from collections import deque
+
+kolejka_drukowania: deque[str] = deque()
+
+
+def dodaj_dokument(nazwa: str) -> None:
+    kolejka_drukowania.append(nazwa)
+    print(f"Dodano do kolejki: '{nazwa}'  [pozycja: {len(kolejka_drukowania)}]")
+
+
+def drukuj_nastepny() -> None:
+    if not kolejka_drukowania:
+        print("Kolejka drukowania jest pusta.")
+    else:
+        dokument = kolejka_drukowania.popleft()
+        print(f"Drukowanie: '{dokument}'...")
+        print(f"Pozostało w kolejce: {len(kolejka_drukowania)}")
+
+
+def ile_dokumentow() -> int:
+    return len(kolejka_drukowania)
+
+
+def wyswietl_kolejke() -> None:
+    if not kolejka_drukowania:
+        print("Kolejka drukowania jest pusta.")
+        return
+
+    print(f"Kolejka drukowania ({len(kolejka_drukowania)} dok.):")
+
+    for i, dokument in enumerate(kolejka_drukowania, start=1):
+        if i == 1:
+            print(f"{i}. {dokument}   ← (następny)")
+        else:
+            print(f"{i}. {dokument}")
