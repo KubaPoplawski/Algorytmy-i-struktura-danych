@@ -1,0 +1,155 @@
+# =============================================================================
+# Zadanie 4 – Słownik (Dict) – Baza Synonimów
+# =============================================================================
+# OPIS PROBLEMU:
+#   Tworzysz narzędzie wspomagające pracę copywritera. Program przechowuje
+#   słowa oraz przypisane do nich listy synonimów.
+#   Użycie słownika (hashmapy) pozwala na błyskawiczne odnalezienie
+#   zamienników nawet przy bardzo dużej bazie haseł.
+#
+# METODY / OPERACJE do poznania:
+#   - slownik[klucz] = wartosc       – dodawanie / aktualizacja wartości
+#   - slownik.get(klucz, default)    – bezpieczne pobieranie z wartością domyślną
+#   - slownik.setdefault(klucz, [])  – inicjalizacja brakującego klucza listą
+#   - del slownik[klucz]             – usuwanie klucza wraz z wartością
+#   - klucz in slownik               – sprawdzenie istnienia klucza
+#   - len(slownik)                   – liczba kluczy w słowniku
+# =============================================================================
+
+import os
+from typing import Optional, Union, list  
+
+
+
+# =============================================================================
+# FUNKCJE DO UZUPEŁNIENIA
+# =============================================================================
+
+def dodaj_synonim(slowo: str, synonim: str) -> None:
+    """
+    Dodaje synonim do podanego słowa w bazie.
+    Jeśli słowo nie istnieje w słowniku, zostaje automatycznie utworzone.
+    Nie dodaje duplikatów – ten sam synonim może wystąpić tylko raz.
+
+    Args:
+        slowo:   słowo bazowe (klucz w słowniku)
+        synonim: synonim do dodania
+
+    Przykład:
+        dodaj_synonim("szybki", "prędki")
+        dodaj_synonim("szybki", "błyskawiczny")
+        # baza_synonimow["szybki"] == ["prędki", "błyskawiczny"]
+    """
+    # 1. Upewniamy się, że klucz 'slowo' istnieje w bazie (zwraca istniejącą lub tworzy nową listę)
+    lista_synonimow = baza_synonimow.setdefault(slowo, [])
+    
+    # 2. Sprawdzamy, czy synonim nie znajduje się już na liście (unikamy duplikatów)
+    if synonim not in lista_synonimow:
+        # 3. Jeśli synonim jest nowy – dołączamy go do listy
+        lista_synonimow.append(synonim)
+
+
+def znajdz_synonimy(slowo: str) -> Union[list[str], str]:  # type: ignore[return]
+    """
+    Zwraca listę synonimów dla podanego słowa.
+    Jeśli słowo nie istnieje w bazie, zwraca czytelny komunikat.
+
+    Args:
+        slowo: szukane słowo bazowe
+
+    Returns:
+        lista synonimów (list[str]) lub komunikat o braku słowa (str)
+    """
+    # 1. Sprawdzamy, czy 'slowo' istnieje w baza_synonimow
+    if slowo in baza_synonimow:
+        # 2. Jeśli tak – zwracamy przypisaną listę synonimów
+        return baza_synonimow[slowo]
+    else:
+        # 3. Jeśli nie – zwracamy napis z informacją o braku klucza
+        return f"Słowo '{slowo}' nie istnieje w bazie."
+
+
+def usun_slowo(slowo: str) -> None:
+    """
+    Usuwa słowo wraz ze wszystkimi jego synonimami z bazy.
+    Jeśli słowo nie istnieje, wypisuje stosowny komunikat (nie rzuca wyjątku).
+
+    Args:
+        slowo: słowo bazowe do usunięcia
+    """
+    # 1. Sprawdzamy, czy 'slowo' istnieje w baza_synonimow
+    if slowo in baza_synonimow:
+        # 2. Jeśli tak – usuwamy je za pomocą `del` i wypisujemy potwierdzenie
+        del baza_synonimow[slowo]
+        print(f"  [Sukces] Słowo '{slowo}' zostało pomyślnie usunięte z bazy.")
+    else:
+        # 3. Jeśli nie – wypisujemy komunikat informacyjny
+        print(f"  [Info] Słowo '{slowo}' nie istnieje w bazie.")
+
+
+def wyswietl_statystyki() -> None:
+    """
+    Wypisuje statystyki bazy synonimów:
+      - łączną liczbę słów (kluczy) w bazie,
+      - łączną liczbę wszystkich przechowywanych synonimów (suma długości list).
+    """
+    # 1. Obliczamy liczbę haseł głównych za pomocą len()
+    liczba_slow = len(baza_synonimow)
+    
+    # 2. Obliczamy łączną sumę elementów we wszystkich listach wartości słownika
+    lacznie_synonimow = sum(len(lista) for lista in baza_synonimow.values())
+    
+    # 3. Wypisujemy sformatowane, czytelne wyniki podsumowania
+    print("  Statystyki bazy synonimów:")
+    print(f"    Liczba słów w bazie    :   {liczba_slow}")
+    print(f"    Łączna liczba synonimów:   {lacznie_synonimow}")
+
+
+# =============================================================================
+# DEMONSTRACJA – uruchom plik, aby zobaczyć działanie po uzupełnieniu TODO
+# =============================================================================
+
+if __name__ == "__main__":
+    print("=" * 60)
+    print("  ZADANIE 4 – Baza Synonimów (słownik / hashmap)")
+    print("=" * 60)
+
+    # --- Dodawanie synonimów ---
+    print("\n[1] Dodawanie synonimów do bazy...")
+    dodaj_synonim("szybki",   "prędki")
+    dodaj_synonim("szybki",   "błyskawiczny")
+    dodaj_synonim("szybki",   "żwawy")
+    dodaj_synonim("duży",      "wielki")
+    dodaj_synonim("duży",      "ogromny")
+    dodaj_synonim("duży",      "potężny")
+    dodaj_synonim("mądry",    "inteligentny")
+    dodaj_synonim("mądry",    "rozumny")
+    dodaj_synonim("piękny",   "śliczny")
+    dodaj_synonim("piękny",   "czarowny")
+    dodaj_synonim("smutny",   "przygnębiony")
+    # Próba dodania duplikatu – nie powinno nic zmienić
+    dodaj_synonim("szybki",   "prędki")
+    print("  Dodano synonimy dla słów: szybki, duży, mądry, piękny, smutny.")
+    print("  (Próba dodania duplikatu 'prędki' dla 'szybki' – powinna być zignorowana.)")
+
+    # --- Wyszukiwanie synonimów ---
+    print("\n[2] Wyszukiwanie synonimów:")
+    print(f"  znajdz_synonimy('szybki') -> {znajdz_synonimy('szybki')}")
+    print(f"  znajdz_synonimy('duży')   -> {znajdz_synonimy('duży')}")
+    print(f"  znajdz_synonimy('wolny')  -> {znajdz_synonimy('wolny')}")
+
+    # --- Statystyki przed usunięciem ---
+    print("\n[3] Statystyki bazy przed usunięciem słowa:")
+    wyswietl_statystyki()
+
+    # --- Usuwanie słowa ---
+    print("\n[4] Usuwanie słowa 'smutny' z bazy...")
+    usun_slowo("smutny")
+    print("  Próba usunięcia nieistniejącego słowa 'wesoły':")
+    usun_slowo("wesoły")
+
+    # --- Statystyki po usunięciu ---
+    print("\n[5] Statystyki bazy po usunięciu słowa:")
+    wyswietl_statystyki()
+
+    print("\n[Gotowe] Uzupełnij metody TODO i sprawdź, czy wyniki są zgodne z oczekiwaniami.")
