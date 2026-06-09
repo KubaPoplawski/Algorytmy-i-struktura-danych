@@ -1,51 +1,173 @@
+# =============================================================================
+# Zadanie 5 – Harmonogram Sprintu (heapify, nsmallest, nlargest)
+# =============================================================================
+# OPIS PROBLEMU:
+#   Jesteś project managerem w zespole scrumowym. Masz listę zadań w backlogu –
+#   każde zadanie ma przypisaną liczbę dni pozostałych do deadline'u.
+#   Musisz szybko odpowiadać na pytania:
+#     - "Które 3 zadania są NAJPILNIEJSZE?" (najmniej dni do deadline'u)
+#     - "Które 3 zadania mam najwięcej czasu na zrobienie?"
+#
+#   Moglibyśmy sortować listę za każdym razem – ale to O(n log n).
+#   heapq.heapify() przekształca istniejącą listę w kopiec w O(n),
+#   a nsmallest/nlargest dają nam top-K elementów bez pełnego sortowania.
+# =============================================================================
+
 import heapq
 
+# Typ reprezentujący zadanie: (dni_do_deadline: int, nazwa: str, priorytet_biznesowy: str)
 Zadanie = tuple[int, str, str]
 
 
 # ============================================================
-# FUNKCJA 1 – Utwórz harmonogram
+# FUNKCJA 1 – Utwórz harmonogram (heapify)
 # ============================================================
 def utworz_harmonogram(zadania: list[Zadanie]) -> list[Zadanie]:
+    """
+    Przekształca podaną listę zadań w kopiec (min-heap po dniach do deadline'u).
+    Zwraca tę samą listę (już jako kopiec) – heapify działa in-place.
+
+    Złożoność czasowa:  O(n) – szybszej niż sortowanie O(n log n)!
+    Złożoność pamięciowa: O(1) – modyfikacja in-place
+    """
+    # Przekształcamy listę w kopiec in-place
     heapq.heapify(zadania)
-
-    print(f"Utworzono harmonogram ({len(zadania)} zadań)")
-
+    
+    if zadania:
+        print(f"  Utworzono harmonogram dla {len(zadania)} zadań.")
+        print(f"  Najbliższy deadline: {zadania[0][0]} dni (Zadanie: '{zadania[0][1]}')")
+    else:
+        print("  Utworzono pusty harmonogram.")
+        
     return zadania
 
 
 # ============================================================
-# FUNKCJA 2 – Najpilniejsze zadania
+# FUNKCJA 2 – Znajdź N najpilniejszych zadań
 # ============================================================
 def najpilniejsze(harmonogram: list[Zadanie], n: int) -> list[Zadanie]:
-    wynik = heapq.nsmallest(n, harmonogram)
+    """
+    Zwraca listę n zadań z NAJMNIEJSZĄ liczbą dni do deadline'u.
 
-    for dni, nazwa, priorytet in wynik:
-        print(f"{dni} dni | {nazwa} | {priorytet}")
-
-    return wynik
+    Złożoność czasowa:  O(n log k), gdzie k = n (żądana liczba wyników)
+    Złożoność pamięciowa: O(k) – tylko k elementów w wyniku
+    """
+    # Pobieramy n elementów z najmniejszą wartością pierwszego pola (dni do deadline'u)
+    wyniki = heapq.nsmallest(n, harmonogram)
+    
+    for i, (dni, nazwa, priorytet) in enumerate(wyniki, 1):
+        print(f"  {i}. [{dni}d] {nazwa} ({priorytet})")
+        
+    return wyniki
 
 
 # ============================================================
-# FUNKCJA 3 – Usuń najpilniejsze
+# FUNKCJA 3 – Usuń N najpilniejszych zadań z harmonogramu
 # ============================================================
 def usun_najpilniejsze(harmonogram: list[Zadanie], n: int) -> list[Zadanie]:
-    usuniete = []
+    """
+    Usuwa i zwraca n zadań z NAJBLIŻSZYM deadline'em z harmonogramu.
 
-    for _ in range(min(n, len(harmonogram))):
+    Złożoność czasowa:  O(n log m), gdzie m = rozmiar harmonogramu
+    Złożoność pamięciowa: O(n) – lista usuniętych zadań
+    """
+    usuniete_zadania: list[Zadanie] = []
+    
+    # Pobieramy n razy element minimalny, upewniając się, że kopiec nie jest pusty
+    for _ in range(n):
+        if not harmonogram:
+            print("  [INFO] Brak kolejnych zadań w harmonogramie do usunięcia.")
+            break
+            
         zadanie = heapq.heappop(harmonogram)
-
-        print(f"Usunięto: {zadanie[1]}")
-
-        usuniete.append(zadanie)
-
-    return usuniete
+        usuniete_zadania.append(zadanie)
+        print(f"  [SPRINT] Zabrano: [{zadanie[0]}d] {zadanie[1]} ({zadanie[2]})")
+        
+    return usuniete_zadania
 
 
 # ============================================================
-# FUNKCJA 4 – Dodaj zadanie
+# FUNKCJA 4 – Dodaj nowe zadanie do harmonogramu
 # ============================================================
 def dodaj_zadanie(harmonogram: list[Zadanie], dni: int, nazwa: str, priorytet_biz: str) -> None:
-    heapq.heappush(harmonogram, (dni, nazwa, priorytet_biz))
+    """
+    Dodaje nowe zadanie do istniejącego harmonogramu (kopca).
 
-    print(f"Dodano zadanie: {nazwa}")
+    Złożoność czasowa:  O(log n)
+    Złożoność pamięciowa: O(1)
+    """
+    nowe_zadanie: Zadanie = (dni, nazwa, priorytet_biz)
+    
+    # Wrzucamy krotkę na kopiec zachowując jego strukturę organizacyjną
+    heapq.heappush(harmonogram, nowe_zadanie)
+    
+    print(f"  [NOWE] Dodano zadanie: [{dni}d] '{nazwa}' z priorytetem {priorytet_biz}")
+
+
+# =============================================================================
+# FUNKCJE POMOCNICZE (dostarczone – nie musisz ich zmieniać)
+# =============================================================================
+def _separator(tytul: str) -> None:
+    print(f"\n{'=' * 55}")
+    print(f"  {tytul}")
+    print('=' * 55)
+
+
+def _wyswietl_wszystkie(harmonogram: list[Zadanie]) -> None:
+    """Wypisuje wszystkie zadania posortowane wg deadline'u (nie niszczy kopca)."""
+    if not harmonogram:
+        print("  Harmonogram jest pusty.")
+        return
+    for dni, nazwa, priorytet in sorted(harmonogram):
+        pasek = "█" * min(dni, 30) + "░" * (30 - min(dni, 30))
+        print(f"  [{dni:>3}d] {pasek} {nazwa} ({priorytet})")
+
+
+# =============================================================================
+# Demonstracja działania – uruchom plik, aby sprawdzić swoje rozwiązanie
+# =============================================================================
+if __name__ == "__main__":
+    print("=== Harmonogram Sprintu – heapify / nsmallest / heappop ===\n")
+
+    # Backlog zadań: (dni_do_deadline, nazwa, priorytet_biznesowy)
+    backlog: list[Zadanie] = [
+        (14, "Migracja bazy danych do PostgreSQL",    "WYSOKI"),
+        (3,  "Hotfix: błąd w module płatności",       "KRYTYCZNY"),
+        (30, "Refaktoryzacja modułu raportów",        "NISKI"),
+        (7,  "Integracja z API kuriera",              "WYSOKI"),
+        (21, "Dokumentacja REST API",                 "SREDNI"),
+        (2,  "Naprawa błędu logowania OAuth",         "KRYTYCZNY"),
+        (45, "Migracja na Python 3.13",                "NISKI"),
+        (10, "Testy wydajnościowe load balancera",    "WYSOKI"),
+    ]
+
+    # --- Krok 1: Zamień backlog w kopiec ---
+    _separator("Tworzenie harmonogramu (heapify)")
+    harmonogram = utworz_harmonogram(backlog)
+
+    # --- Krok 2: Podgląd całego harmonogramu ---
+    _separator("Pełny harmonogram (posortowany wg deadline'u)")
+    _wyswietl_wszystkie(harmonogram)
+
+    # --- Krok 3: Co robimy w tym tygodniu? ---
+    _separator("Top 3 najpilniejsze zadania (stand-up)")
+    najpilniejsze(harmonogram, 3)
+
+    # --- Krok 4: Sprint startuje — bierzemy 3 najpilniejsze do realizacji ---
+    _separator("Start sprintu – bierzemy 3 najpilniejsze zadania")
+    usuniete = usun_najpilniejsze(harmonogram, 3)
+
+    _separator("Harmonogram po zabraniu 3 zadań do sprintu")
+    _wyswietl_wszystkie(harmonogram)
+
+    # --- Krok 5: Nowe zgłoszenie z zewnątrz ---
+    _separator("Nowe zadanie wpada w trakcie sprintu")
+    dodaj_zadanie(harmonogram, 1, "PRODUKCJA: błąd 500 na stronie głównej", "KRYTYCZNY")
+    dodaj_zadanie(harmonogram, 60, "Aktualizacja polityki cookies", "NISKI")
+
+    # --- Krok 6: Aktualne top 3 po zmianach ---
+    _separator("Top 3 najpilniejsze po aktualizacji")
+    najpilniejsze(harmonogram, 3)
+
+    _separator("Pełny harmonogram po aktualizacji")
+    _wyswietl_wszystkie(harmonogram)
