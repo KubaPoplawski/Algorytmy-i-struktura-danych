@@ -1,1 +1,158 @@
 
+# =============================================================================
+# BUBBLE SORT
+# =============================================================================
+
+def bubble_sort(array: list[int]) -> None:
+    n = len(array)
+
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if array[j] > array[j + 1]:
+                swap(array, j, j + 1)
+
+
+# =============================================================================
+# SELECTION SORT
+# =============================================================================
+
+def selection_sort(array: list[int]) -> None:
+    n = len(array)
+
+    for i in range(n):
+        min_index = i
+
+        for j in range(i + 1, n):
+            if array[j] < array[min_index]:
+                min_index = j
+
+        swap(array, i, min_index)
+
+
+# =============================================================================
+# INSERTION SORT
+# =============================================================================
+
+def insertion_sort(array: list[int]) -> None:
+    for i in range(1, len(array)):
+        key = array[i]
+        j = i - 1
+
+        while j >= 0 and array[j] > key:
+            array[j + 1] = array[j]
+            j -= 1
+
+        array[j + 1] = key
+
+
+# =============================================================================
+# MERGE
+# =============================================================================
+
+def _merge(array: list[int], left: int, mid: int, right: int) -> None:
+    left_part = array[left:mid + 1]
+    right_part = array[mid + 1:right + 1]
+
+    i = 0
+    j = 0
+    k = left
+
+    while i < len(left_part) and j < len(right_part):
+        if left_part[i] <= right_part[j]:
+            array[k] = left_part[i]
+            i += 1
+        else:
+            array[k] = right_part[j]
+            j += 1
+
+        k += 1
+
+    while i < len(left_part):
+        array[k] = left_part[i]
+        i += 1
+        k += 1
+
+    while j < len(right_part):
+        array[k] = right_part[j]
+        j += 1
+        k += 1
+
+
+# =============================================================================
+# MERGE SORT
+# =============================================================================
+
+def _merge_sort(array: list[int], left: int, right: int) -> None:
+    if left < right:
+        mid = (left + right) // 2
+
+        _merge_sort(array, left, mid)
+        _merge_sort(array, mid + 1, right)
+
+        _merge(array, left, mid, right)
+
+
+# =============================================================================
+# PARTITION (Lomuto)
+# =============================================================================
+
+def _partition(array: list[int], low: int, high: int) -> int:
+    pivot = array[high]
+
+    i = low - 1
+
+    for j in range(low, high):
+        if array[j] <= pivot:
+            i += 1
+            swap(array, i, j)
+
+    swap(array, i + 1, high)
+
+    return i + 1
+
+
+# =============================================================================
+# QUICK SORT
+# =============================================================================
+
+def _quick_sort(array: list[int], low: int, high: int) -> None:
+    if low < high:
+        pivot_index = _partition(array, low, high)
+
+        _quick_sort(array, low, pivot_index - 1)
+        _quick_sort(array, pivot_index + 1, high)
+
+
+# =============================================================================
+# LINEAR SEARCH
+# =============================================================================
+
+def linear_search(array: list[int], target: int) -> int:
+    for i in range(len(array)):
+        if array[i] == target:
+            return i
+
+    return -1
+
+
+# =============================================================================
+# BINARY SEARCH
+# =============================================================================
+
+def binary_search(array: list[int], target: int) -> int:
+    left = 0
+    right = len(array) - 1
+
+    while left <= right:
+        mid = (left + right) // 2
+
+        if array[mid] == target:
+            return mid
+
+        elif target < array[mid]:
+            right = mid - 1
+
+        else:
+            left = mid + 1
+
+    return -1
