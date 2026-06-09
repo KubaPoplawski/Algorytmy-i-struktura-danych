@@ -1,0 +1,61 @@
+class TrieNode:
+    def __init__(self):
+        self.dzieci = {}
+        self.czy_koniec = False
+
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    # ============================================================
+    # FUNKCJA 1 – Dodawanie słowa
+    # ============================================================
+    def wstaw(self, slowo: str) -> None:
+        node = self.root
+
+        for litera in slowo:
+            if litera not in node.dzieci:
+                node.dzieci[litera] = TrieNode()
+
+            node = node.dzieci[litera]
+
+        node.czy_koniec = True
+
+    # ============================================================
+    # FUNKCJA 2 – Wyszukiwanie słowa
+    # ============================================================
+    def szukaj(self, slowo: str) -> bool:
+        node = self.root
+
+        for litera in slowo:
+            if litera not in node.dzieci:
+                return False
+
+            node = node.dzieci[litera]
+
+        return node.czy_koniec
+
+    # ============================================================
+    # FUNKCJA 3 – Autouzupełnianie
+    # ============================================================
+    def podpowiedzi(self, prefiks: str) -> list[str]:
+        node = self.root
+
+        for litera in prefiks:
+            if litera not in node.dzieci:
+                return []
+
+            node = node.dzieci[litera]
+
+        wyniki = []
+        self._zbierz_slowa(node, prefiks, wyniki)
+
+        return sorted(wyniki)
+
+    def _zbierz_slowa(self, node, prefiks, wyniki):
+        if node.czy_koniec:
+            wyniki.append(prefiks)
+
+        for litera, dziecko in node.dzieci.items():
+            self._zbierz_slowa(dziecko, prefiks + litera, wyniki)
