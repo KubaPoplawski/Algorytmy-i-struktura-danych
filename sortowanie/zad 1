@@ -1,158 +1,275 @@
+import random
+import time
 
 # =============================================================================
-# BUBBLE SORT
+#  METODY POMOCNICZE
 # =============================================================================
 
-def bubble_sort(array: list[int]) -> None:
+def generate_random_array(size: int, min_val: int, max_val: int) -> list:
+    """
+    Generuje listę size losowych liczb całkowitych z zakresu [min_val, max_val].
+    Obsługuje ujemne wartości min_val bez ryzyka overflow.
+    """
+    return [random.randint(min_val, max_val) for _ in range(size)]
+
+
+def print_array(array: list) -> None:
+    """Wypisuje zawartość listy w czytelnym formacie, np.: [ 3, 7, 1, 9, 4 ]"""
+    print("[ " + ", ".join(str(x) for x in array) + " ]")
+
+
+def is_sorted(array: list) -> bool:
+    """
+    Sprawdza, czy lista jest posortowana niemalejąco (rosnąco).
+    Przydatne do autoweryfikacji poprawności implementacji.
+    """
+    return all(array[i] <= array[i + 1] for i in range(len(array) - 1))
+
+
+def swap(array: list, i: int, j: int) -> None:
+    """Zamienia miejscami dwa elementy listy o indeksach i i j."""
+    array[i], array[j] = array[j], array[i]
+
+
+# =============================================================================
+#  ALGORYTMY SORTOWANIA
+# =============================================================================
+
+def bubble_sort(array: list) -> None:
+    """
+    Sortowanie bąbelkowe (Bubble Sort).
+    """
     n = len(array)
-
     for i in range(n):
+        # Ostatnie i elementów jest już na właściwym miejscu
         for j in range(0, n - i - 1):
             if array[j] > array[j + 1]:
                 swap(array, j, j + 1)
 
 
-# =============================================================================
-# SELECTION SORT
-# =============================================================================
-
-def selection_sort(array: list[int]) -> None:
+def selection_sort(array: list) -> None:
+    """
+    Sortowanie przez wybieranie (Selection Sort).
+    """
     n = len(array)
-
     for i in range(n):
-        min_index = i
-
+        min_idx = i
+        # Szukamy najmniejszego elementu w nieposortowanej części
         for j in range(i + 1, n):
-            if array[j] < array[min_index]:
-                min_index = j
+            if array[j] < array[min_idx]:
+                min_idx = j
+        # Zamieniamy znaleziony najmniejszy element z pierwszym elementem nieposortowanej części
+        swap(array, i, min_idx)
 
-        swap(array, i, min_index)
 
-
-# =============================================================================
-# INSERTION SORT
-# =============================================================================
-
-def insertion_sort(array: list[int]) -> None:
+def insertion_sort(array: list) -> None:
+    """
+    Sortowanie przez wstawianie (Insertion Sort).
+    """
     for i in range(1, len(array)):
-        key = array[i]
+        klucz = array[i]
         j = i - 1
-
-        while j >= 0 and array[j] > key:
+        # Przesuwamy elementy większe od klucza o jedną pozycję w prawo
+        while j >= 0 and array[j] > klucz:
             array[j + 1] = array[j]
             j -= 1
+        array[j + 1] = klucz
 
-        array[j + 1] = key
 
+def _merge(array: list, left: int, mid: int, right: int) -> None:
+    """
+    Pomocnicza funkcja scalająca dwa posortowane podciągi array[left..mid]
+    i array[mid+1..right] w jeden posortowany ciąg.
+    """
+    # Tworzymy tymczasowe kopie podtablic
+    left_copy = array[left:mid + 1]
+    right_copy = array[mid + 1:right + 1]
 
-# =============================================================================
-# MERGE
-# =============================================================================
+    i = 0  # Początkowy indeks pierwszej podtablicy
+    j = 0  # Początkowy indeks drugiej podtablicy
+    k = left  # Początkowy indeks scalonej podtablicy w tablicy głównej
 
-def _merge(array: list[int], left: int, mid: int, right: int) -> None:
-    left_part = array[left:mid + 1]
-    right_part = array[mid + 1:right + 1]
-
-    i = 0
-    j = 0
-    k = left
-
-    while i < len(left_part) and j < len(right_part):
-        if left_part[i] <= right_part[j]:
-            array[k] = left_part[i]
+    # Scalanie z porównywaniem elementów
+    while i < len(left_copy) and j < len(right_copy):
+        if left_copy[i] <= right_copy[j]:
+            array[k] = left_copy[i]
             i += 1
         else:
-            array[k] = right_part[j]
+            array[k] = right_copy[j]
             j += 1
-
         k += 1
 
-    while i < len(left_part):
-        array[k] = left_part[i]
+    # Przepisanie pozostałych elementów z left_copy (jeśli jakieś zostały)
+    while i < len(left_copy):
+        array[k] = left_copy[i]
         i += 1
         k += 1
 
-    while j < len(right_part):
-        array[k] = right_part[j]
+    # Przepisanie pozostałych elementów z right_copy (jeśli jakieś zostały)
+    while j < len(right_copy):
+        array[k] = right_copy[j]
         j += 1
         k += 1
 
 
-# =============================================================================
-# MERGE SORT
-# =============================================================================
-
-def _merge_sort(array: list[int], left: int, right: int) -> None:
+def _merge_sort(array: list, left: int, right: int) -> None:
+    """
+    Sortowanie przez scalanie (Merge Sort).
+    """
     if left < right:
         mid = (left + right) // 2
 
+        # Rekurencyjne sortowanie pierwszej i drugiej połowy
         _merge_sort(array, left, mid)
         _merge_sort(array, mid + 1, right)
-
+        
+        # Scalenie posortowanych połówek
         _merge(array, left, mid, right)
 
 
-# =============================================================================
-# PARTITION (Lomuto)
-# =============================================================================
+def merge_sort(array: list) -> None:
+    """
+    Interfejsowa funkcja sortowania przez scalanie (Merge Sort).
+    """
+    _merge_sort(array, 0, len(array) - 1)
 
-def _partition(array: list[int], low: int, high: int) -> int:
-    pivot = array[high]
 
-    i = low - 1
+def _partition(array: list, low: int, high: int) -> int:
+    """
+    Pomocnicza funkcja dzieląca listę na dwie części względem pivota (Schemat Lomuto).
+    """
+    pivot = array[high]  # Wybieramy ostatni element jako pivot
+    i = low - 1  # Indeks mniejszego elementu
 
     for j in range(low, high):
+        # Jeśli aktualny element jest mniejszy lub równy pivotowi
         if array[j] <= pivot:
             i += 1
             swap(array, i, j)
 
+    # Umieszczenie pivota na odpowiednim miejscu (tuż po elementach mniejszych)
     swap(array, i + 1, high)
-
     return i + 1
 
 
-# =============================================================================
-# QUICK SORT
-# =============================================================================
-
-def _quick_sort(array: list[int], low: int, high: int) -> None:
+def _quick_sort(array: list, low: int, high: int) -> None:
+    """
+    Sortowanie szybkie (Quick Sort).
+    """
     if low < high:
-        pivot_index = _partition(array, low, high)
+        # pi to indeks podziału, array[pi] jest już na właściwym miejscu
+        pi = _partition(array, low, high)
 
-        _quick_sort(array, low, pivot_index - 1)
-        _quick_sort(array, pivot_index + 1, high)
+        # Rekurencyjne sortowanie elementów przed i po podziale
+        _quick_sort(array, low, pi - 1)
+        _quick_sort(array, pi + 1, high)
+
+
+def quick_sort(array: list) -> None:
+    """
+    Interfejsowa funkcja sortowania szybkiego (Quick Sort).
+    """
+    _quick_sort(array, 0, len(array) - 1)
 
 
 # =============================================================================
-# LINEAR SEARCH
+#  ALGORYTMY WYSZUKIWANIA
 # =============================================================================
 
-def linear_search(array: list[int], target: int) -> int:
+def linear_search(array: list, target: int) -> int:
+    """
+    Wyszukiwanie liniowe (Linear Search).
+    """
     for i in range(len(array)):
         if array[i] == target:
             return i
-
     return -1
 
 
-# =============================================================================
-# BINARY SEARCH
-# =============================================================================
+def binary_search(array: list, target: int) -> int:
+    """
+    Wyszukiwanie binarne (Binary Search).
+    """
+    low = 0
+    high = len(array) - 1
 
-def binary_search(array: list[int], target: int) -> int:
-    left = 0
-    right = len(array) - 1
-
-    while left <= right:
-        mid = (left + right) // 2
-
+    while low <= high:
+        mid = (low + high) // 2
+        
+        # Jeśli element znajduje się na środku
         if array[mid] == target:
             return mid
-
-        elif target < array[mid]:
-            right = mid - 1
-
+        # Jeśli element jest mniejszy niż środek, szukamy w lewej połówce
+        elif array[mid] > target:
+            high = mid - 1
+        # Jeśli element jest większy niż środek, szukamy w prawej połówce
         else:
-            left = mid + 1
-
+            low = mid + 1
+            
     return -1
+
+
+# =============================================================================
+#  SCENARIUSZ TESTOWY
+# =============================================================================
+
+if __name__ == "__main__":
+
+    # --- Konfiguracja testu ---
+    SIZE = 25    # liczba elementów listy
+    MIN  = 0     # minimalna wartość elementu
+    MAX  = 100   # maksymalna wartość elementu
+
+    print("=== Laboratorium: Algorytmy i Struktury Danych ===\n")
+
+    # 1. Generowanie losowej listy
+    array = generate_random_array(SIZE, MIN, MAX)
+    target = array[SIZE // 2]  # wybieramy element ze środka jako cel wyszukiwania
+
+    # 2. Wyświetlenie listy przed sortowaniem
+    print("Lista przed sortowaniem: ", end="")
+    print_array(array)
+
+    # 3. Pomiar czasu sortowania
+    start_time = time.perf_counter_ns()
+
+    # Domyślnie ustawione na bubble_sort. Możesz zmienić na:
+    # selection_sort(array) | insertion_sort(array) | merge_sort(array) | quick_sort(array)
+    bubble_sort(array)  
+
+    end_time = time.perf_counter_ns()
+    elapsed  = end_time - start_time
+
+    # 4. Wyświetlenie listy po sortowaniu
+    print("Lista po sortowaniu:      ", end="")
+    print_array(array)
+
+    # 5. Weryfikacja poprawności sortowania
+    if is_sorted(array):
+        print("\n✔ Sortowanie zakończone sukcesem!")
+    else:
+        print("\n✘ Błąd: lista NIE jest posortowana. Sprawdź implementację.")
+
+    print(f"Czas wykonania: {elapsed} ns")
+
+    # --- Przykładowy test wyszukiwania liniowego ---
+    print("\n--- Test wyszukiwania liniowego ---")
+    linear_index = linear_search(array, target)
+    if linear_index != -1:
+        print(f"Znaleziono wartość {target} pod indeksem: {linear_index}")
+    else:
+        print(f"Wartość {target} nie została znaleziona (sprawdź implementację linear_search).")
+
+    # --- Przykładowy test wyszukiwania binarnego ---
+    print("\n--- Test wyszukiwania binarnego ---")
+    start_search = time.perf_counter_ns()
+    index = binary_search(array, target)
+    end_search = time.perf_counter_ns()
+    search_elapsed = end_search - start_search
+
+    if index != -1:
+        print(f"Znaleziono wartość {target} pod indeksem: {index}")
+    else:
+        print(f"Wartość {target} nie została znaleziona (sprawdź implementację binary_search).")
+
+    print(f"Czas wyszukiwania: {search_elapsed} ns")
