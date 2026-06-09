@@ -1,32 +1,79 @@
-##ZADANIE 1
+# =============================================================================
+# Zadanie 1 – Tablica (Array) o stałym rozmiarze
+# =============================================================================
+# OPIS PROBLEMU:
+#   Pracujesz jako meteorolog i chcesz zapisać temperatury (w °C) zmierzone
+#   przez 7 kolejnych dni tygodnia. Ponieważ liczba dni jest znana z góry i
+#   stała, przechowujesz dane w "tablicy" o stałej długości (lista z 7 None).
+#
+#   Twoim zadaniem jest:
+#     1. Wpisanie temperatur do tablicy przez indeksowanie (nie używaj append!).
+#     2. Obliczenie średniej temperatur w tygodniu.
+#     3. Znalezienie numeru dnia (1–7) z najwyższą temperaturą.
+# =============================================================================
 
 LICZBA_DNI = 7
 DNI_TYGODNIA = ["Poniedziałek", "Wtorek", "Środa", "Czwartek",
                 "Piątek", "Sobota", "Niedziela"]
 
+# --- Inicjalizacja tablicy o stałym rozmiarze -------------------------------
+# Tablica jest już gotowa – nie zmieniaj jej rozmiaru!
 temperatury: list = [None] * LICZBA_DNI
 
 
+# ============================================================
+# FUNKCJA 1 – Wpisz temperatury do tablicy
+# ============================================================
 def wpisz_temperatury() -> None:
+    """
+    Wpisuje przykładowe temperatury do tablicy `temperatury`
+    za pomocą indeksowania (tablica[i] = wartość).
+    """
     przykladowe_temp = [12.5, 14.0, 9.8, 11.3, 16.7, 20.1, 18.4]
 
+    # Iterujemy po indeksach od 0 do 6 i bezpośrednio modyfikujemy komórki pamięci
     for i in range(LICZBA_DNI):
         temperatury[i] = przykladowe_temp[i]
 
 
+# ============================================================
+# FUNKCJA 2 – Oblicz średnią temperaturę
+# ============================================================
 def oblicz_srednia() -> float:
-    suma = sum(temperatury)
-    srednia = suma / len(temperatury)
+    """
+    Oblicza i zwraca średnią arytmetyczną temperatur z tygodnia.
+    """
+    # Sumujemy wartości w tablicy i dzielimy przez jej rzeczywistą długość
+    suma_temperatur = sum(temperatury)
+    srednia = suma_temperatur / len(temperatury)
+    
+    # Zwracamy zaokrągloną wartość do dwóch miejsc po przecinku
     return round(srednia, 2)
 
 
+# ============================================================
+# FUNKCJA 3 – Znajdź najcieplejszy dzień
+# ============================================================
 def najcieplejszy_dzien() -> tuple[str, float]:
+    """
+    Zwraca krotkę (nazwa_dnia, temperatura) dla dnia
+    z najwyższą temperaturą w tygodniu.
+    """
+    # 1. Znajdujemy najwyższą wartość w tablicy
     maks_temp = max(temperatury)
-    indeks = temperatury.index(maks_temp)
+    
+    # 2. Lokalizujemy indeks, na którym ta wartość się znajduje
+    indeks_maks = temperaturas.index(maks_temp) if 'temperaturas' in locals() else temperaturas.index(maks_temp) if 'temperaturas' in globals() else temperatury.index(maks_temp)
+    
+    # 3. Pobieramy nazwę dnia z listy DNI_TYGODNIA na podstawie wyznaczonego indeksu
+    nazwa_dnia = DNI_TYGODNIA[indeks_maks]
+    
+    return (nazwa_dnia, maks_temp)
 
-    return (DNI_TYGODNIA[indeks], maks_temp)
 
-
+# =============================================================================
+# Demonstracja działania – uruchom plik, aby sprawdzić swoje rozwiązanie
+# =============================================================================
 if __name__ == "__main__":
     wpisz_temperatury()
 
