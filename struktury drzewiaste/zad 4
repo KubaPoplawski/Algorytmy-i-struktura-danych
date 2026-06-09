@@ -1,0 +1,39 @@
+import heapq
+
+Zgloszenie = tuple[int, int, str]
+
+
+# ============================================================
+# FUNKCJA 1 – Dodaj zgłoszenie
+# ============================================================
+def dodaj_zgloszenie(kolejka: list, priorytet: int, id_zgloszenia: int, opis: str) -> None:
+    heapq.heappush(kolejka, (priorytet, id_zgloszenia, opis))
+
+    print(f"Dodano zgłoszenie: [{priorytet}] {opis}")
+
+
+# ============================================================
+# FUNKCJA 2 – Obsłuż zgłoszenie
+# ============================================================
+def obsluz_zgloszenie(kolejka: list) -> Zgloszenie | None:
+    if not kolejka:
+        print("Brak zgłoszeń do obsłużenia.")
+        return None
+
+    zgloszenie = heapq.heappop(kolejka)
+
+    print(f"Obsłużono: {zgloszenie[2]}")
+
+    return zgloszenie
+
+
+# ============================================================
+# FUNKCJA 3 – Wyświetl kolejkę
+# ============================================================
+def wyswietl_kolejke(kolejka: list) -> None:
+    if not kolejka:
+        print("Kolejka jest pusta.")
+        return
+
+    for priorytet, id_zgl, opis in sorted(kolejka):
+        print(f"[{priorytet}] ID:{id_zgl} - {opis}")
