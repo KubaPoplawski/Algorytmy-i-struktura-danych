@@ -1,5 +1,10 @@
 import heapq
+from typing import Optional
 
+# Typ reprezentujący zgłoszenie: (priorytet: int, id: int, opis: str)
+# Używamy `id` jako drugiego pola, żeby uniknąć błędu porównania stringów
+# gdy dwa zgłoszenia mają ten sam priorytet (Python próbuje wtedy porównać
+# kolejne pole krotki – bez `id` porównywałby stringi opisu, co może się nie udać).
 Zgloszenie = tuple[int, int, str]
 
 
@@ -7,33 +12,125 @@ Zgloszenie = tuple[int, int, str]
 # FUNKCJA 1 – Dodaj zgłoszenie
 # ============================================================
 def dodaj_zgloszenie(kolejka: list, priorytet: int, id_zgloszenia: int, opis: str) -> None:
-    heapq.heappush(kolejka, (priorytet, id_zgloszenia, opis))
+    """
+    Dodaje nowe zgłoszenie do kolejki priorytetowej.
 
-    print(f"Dodano zgłoszenie: [{priorytet}] {opis}")
+    Intuicja: wrzucamy krotkę (priorytet, id, opis) do kopca.
+    heapq zadba o to, żeby najważniejsze zgłoszenie (najmniejszy priorytet)
+    zawsze było dostępne jako pierwszy element listy.
+
+    Złożoność czasowa:  O(log n) – kopiec "przesiewa" nowy element w górę
+    Złożoność pamięciowa: O(1) – nie tworzymy nowych struktur
+    """
+    # Tworzymy element w postaci krotki (priorytet, id, opis)
+    nowe_zgloszenie: Zgloszenie = (priorytet, id_zgloszenia, opis)
+    
+    # Wpychamy element na kopiec, zachowując jego strukturę i porządek
+    heapq.heappush(kolejka, nowe_zgloszenie)
+    
+    print(f"  [DODANO] Priorytet {priorytet} (ID: {id_zgloszenia}): {opis}")
 
 
 # ============================================================
 # FUNKCJA 2 – Obsłuż zgłoszenie
 # ============================================================
-def obsluz_zgloszenie(kolejka: list) -> Zgloszenie | None:
+def obsluz_zgloszenie(kolejka: list) -> Optional[Zgloszenie]:
+    """
+    Pobiera i zwraca zgłoszenie o NAJWYŻSZYM priorytecie (najniższa liczba).
+    Jeśli kolejka jest pusta, zwraca None i wypisuje stosowny komunikat.
+
+    Intuicja: heappop() zawsze oddaje element ze szczytu kopca (minimum),
+    a następnie reorganizuje strukturę, żeby nowe minimum znalazło się na górze.
+
+    Złożoność czasowa:  O(log n) – "przesiewanie" w dół po usunięciu szczytu
+    Złożoność pamięciowa: O(1)
+    """
+    # Sprawdzamy czy kolejka jest pusta
     if not kolejka:
-        print("Brak zgłoszeń do obsłużenia.")
+        print("  [INFO] Kolejka zgłoszeń jest pusta. Brak zadań do obsłużenia.")
         return None
 
-    zgloszenie = heapq.heappop(kolejka)
-
-    print(f"Obsłużono: {zgloszenie[2]}")
-
-    return zgloszenie
+    # Pobieramy z góry kopca element o najniższej wartości priorytetu
+    najwazniejsze = heapq.heappop(kolejka)
+    priorytet, id_zgloszenia, opis = najwazniejsze
+    
+    print(f"  [OBSŁUGA] Priorytet {priorytet} (ID: {id_zgloszenia}): {opis}")
+    return najwazniejsze
 
 
 # ============================================================
 # FUNKCJA 3 – Wyświetl kolejkę
 # ============================================================
 def wyswietl_kolejke(kolejka: list) -> None:
+    """
+    Wypisuje wszystkie zgłoszenia w kolejce BEZ ich usuwania.
+    Uwaga: lista kopca NIE jest w pełni posortowana wizualnie –
+    gwarantuje tylko, że kolejka[0] jest minimum (własność kopca).
+    Żeby wypisać w kolejności priorytetu, musimy posortować kopię.
+
+    Złożoność czasowa:  O(n log n) – sortowanie kopii
+    Złożoność pamięciowa: O(n) – tworzymy kopię listy
+    """
+    # Sprawdzamy czy kolejka jest pusta
     if not kolejka:
-        print("Kolejka jest pusta.")
+        print("  [INFO] Brak aktywnych zgłoszeń w kolejce.")
         return
 
-    for priorytet, id_zgl, opis in sorted(kolejka):
-        print(f"[{priorytet}] ID:{id_zgl} - {opis}")
+    # Aby nie uszkodzić oryginalnego kopca i wyświetlić zgłoszenia w poprawnym porządku,
+    # tworzymy posortowaną kopię listy
+    kolejka_posortowana = sorted(kolejka)
+    
+    for priorytet, id_zgloszenia, opis in kolejka_posortowana:
+        print(f"  - [Priorytet: {priorytet}] ID: {id_zgloszenia} | {opis}")
+
+
+# =============================================================================
+# FUNKCJE POMOCNICZE (dostarczone – nie musisz ich zmieniać)
+# =============================================================================
+def _separator(tytul: str) -> None:
+    """Drukuje czytelny separator sekcji w demo."""
+    print(f"\n{'=' * 50}")
+    print(f"  {tytul}")
+    print('=' * 50)
+
+
+# =============================================================================
+# Demonstracja działania – uruchom plik, aby sprawdzić swoje rozwiązanie
+# =============================================================================
+if __name__ == "__main__":
+    print("=== Helpdesk IT – Kolejka Priorytetowa ===\n")
+
+    kolejka_it: list = []
+
+    # --- Napływają zgłoszenia w losowej kolejności ---
+    _separator("Dodawanie zgłoszeń")
+    dodaj_zgloszenie(kolejka_it, 3, 1, "Drukarka w sali 204 nie działa")
+    dodaj_zgloszenie(kolejka_it, 1, 2, "AWARIA: serwer bazy danych nie odpowiada")
+    dodaj_zgloszenie(kolejka_it, 5, 3, "Prośba o zmianę tapety pulpitu")
+    dodaj_zgloszenie(kolejka_it, 2, 4, "Klient VIP nie może się zalogować do CRM")
+    dodaj_zgloszenie(kolejka_it, 4, 5, "Brak dostępu do drukarki sieciowej")
+    dodaj_zgloszenie(kolejka_it, 1, 6, "AWARIA: strona www zwraca błąd 500")
+
+    # --- Podgląd stanu kolejki ---
+    _separator("Stan kolejki (wszystkie zgłoszenia)")
+    wyswietl_kolejke(kolejka_it)
+
+    # --- Technik zaczyna obsługę ---
+    _separator("Obsługa zgłoszeń (od najważniejszych)")
+    obsluz_zgloszenie(kolejka_it)
+    obsluz_zgloszenie(kolejka_it)
+    obsluz_zgloszenie(kolejka_it)
+
+    # --- Podgląd po obsłudze 3 zgłoszeń ---
+    _separator("Stan kolejki po obsłudze 3 zgłoszeń")
+    wyswietl_kolejke(kolejka_it)
+
+    # --- Obsłuż pozostałe ---
+    _separator("Obsługa pozostałych zgłoszeń")
+    obsluz_zgloszenie(kolejka_it)
+    obsluz_zgloszenie(kolejka_it)
+    obsluz_zgloszenie(kolejka_it)
+
+    # --- Próba obsługi pustej kolejki ---
+    _separator("Próba obsługi pustej kolejki")
+    obsluz_zgloszenie(kolejka_it)
