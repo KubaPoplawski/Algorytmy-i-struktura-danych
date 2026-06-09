@@ -1,3 +1,23 @@
+# =============================================================================
+# Zadanie 2 – Drzewo Binarne Poszukiwań (Binary Search Tree - BST)
+# =============================================================================
+# OPIS PROBLEMU:
+#   Budujesz system wyszukiwania produktów po ich numerze ID.
+#   W zwykłej liście szukanie zajmuje O(n). W BST, dzięki strukturze,
+#   w której mniejsze wartości są po lewej, a większe po prawej,
+#   skracamy czas szukania do O(log n).
+#
+#   Twoim zadaniem jest:
+#     1. Implementacja wstawiania nowego produktu do drzewa (zachowując porządek).
+#     2. Implementacja wyszukiwania produktu po ID.
+#     3. Wyświetlenie wszystkich produktów w kolejności rosnącej (In-order).
+#
+# METODY / WŁAŚCIWOŚCI do poznania:
+#   - Lewe dziecko (left):   wartości < rodzic
+#   - Prawe dziecko (right): wartości > rodzic
+#   - Rekurencja:            metoda wywołuje samą siebie dla poddrzewa.
+# =============================================================================
+
 class ProduktNode:
     def __init__(self, id_produktu: int, nazwa: str):
         self.id = id_produktu
@@ -10,18 +30,24 @@ class ProduktNode:
 # FUNKCJA 1 – Wstawianie do drzewa
 # ============================================================
 def wstaw(korzen: ProduktNode, nowy_wezel: ProduktNode) -> ProduktNode:
+    """
+    Wstawia nowy_wezel do drzewa BST zgodnie z zasadą:
+    mniejsze ID na lewo, większe ID na prawo.
+
+    Jeśli produkt o takim samym ID już istnieje w drzewie,
+    jest ignorowany — nie dodajemy duplikatów.
+    """
     if korzen is None:
         return nowy_wezel
 
+    # Jeśli ID nowego węzła jest mniejsze, idziemy w lewo
     if nowy_wezel.id < korzen.id:
         korzen.lewo = wstaw(korzen.lewo, nowy_wezel)
-
+    # Jeśli ID nowego węzła jest większe, idziemy w prawo
     elif nowy_wezel.id > korzen.id:
         korzen.prawo = wstaw(korzen.prawo, nowy_wezel)
-
-    else:
-        return korzen
-
+    
+    # Jeśli nowy_wezel.id == korzen.id, to ignorujemy duplikat (nic nie zmieniamy)
     return korzen
 
 
@@ -29,15 +55,23 @@ def wstaw(korzen: ProduktNode, nowy_wezel: ProduktNode) -> ProduktNode:
 # FUNKCJA 2 – Wyszukiwanie w drzewie
 # ============================================================
 def szukaj(korzen: ProduktNode, szukane_id: int) -> str:
+    """
+    Przeszukuje drzewo w poszukiwaniu produktu o danym ID.
+    Zwraca nazwę produktu lub informację o braku.
+    """
+    # Przypadek podstawowy: doszliśmy do końca gałęzi i nie znaleźliśmy elementu
     if korzen is None:
-        return "Nie znaleziono produktu."
+        return "Nie znaleziono produktu o podanym ID."
 
-    if szukane_id == korzen.id:
+    # Sukces: znaleźliśmy węzeł z pasującym ID
+    if korzen.id == szukane_id:
         return korzen.nazwa
 
+    # Jeśli szukana wartość jest mniejsza, kierujemy się w lewo
     if szukane_id < korzen.id:
         return szukaj(korzen.lewo, szukane_id)
-
+    
+    # W przeciwnym wypadku szukana wartość jest większa, więc idziemy w prawo
     return szukaj(korzen.prawo, szukane_id)
 
 
@@ -45,11 +79,17 @@ def szukaj(korzen: ProduktNode, szukane_id: int) -> str:
 # FUNKCJA 3 – Wyświetlanie (In-order Traversal)
 # ============================================================
 def wyswietl_katalog(korzen: ProduktNode):
+    """
+    Wypisuje katalog produktów posortowany po ID (rosnąco).
+    """
     if korzen:
+        # 1. Odwiedź lewe poddrzewo (mniejsze elementy)
         wyswietl_katalog(korzen.lewo)
-
-        print(f"ID: {korzen.id} | {korzen.nazwa}")
-
+        
+        # 2. Odwiedź bieżący węzeł (wypisanie danych)
+        print(f"  [ID: {korzen.id:<3}] {korzen.nazwa}")
+        
+        # 3. Odwiedź prawe poddrzewo (większe elementy)
         wyswietl_katalog(korzen.prawo)
 
 
@@ -59,9 +99,11 @@ def wyswietl_katalog(korzen: ProduktNode):
 if __name__ == "__main__":
     print("=== Katalog Produktów (BST) ===\n")
 
+    # Tworzymy korzeń (środek zakresu, żeby drzewo było w miarę zbalansowane)
     katalog = ProduktNode(50, "Laptop Gamingowy")
 
-    produkty_do_dodania = [
+    # Dodajemy produkty
+    y = [
         (20, "Myszka bezprzewodowa"),
         (70, "Monitor 4K"),
         (10, "Klawiatura mechaniczna"),
@@ -70,7 +112,7 @@ if __name__ == "__main__":
         (80, "Podkładka pod mysz")
     ]
 
-    for id_p, nazwa in produkty_do_dodania:
+    for id_p, nazwa in y:
         wstaw(katalog, ProduktNode(id_p, nazwa))
 
     print("-- Pełny katalog (posortowany po ID) --")
@@ -83,3 +125,4 @@ if __name__ == "__main__":
     print("\n-- Test duplikatu --")
     wstaw(katalog, ProduktNode(30, "DUPLIKAT Słuchawek"))
     print(f"Szukam ID 30 po próbie wstawienia duplikatu: {szukaj(katalog, 30)}")
+    # Powinno nadal zwrócić "Słuchawki ANC", nie "DUPLIKAT Słuchawek"
