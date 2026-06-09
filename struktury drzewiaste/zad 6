@@ -1,0 +1,36 @@
+import heapq
+
+
+# ============================================================
+# FUNKCJA 1 – Scal logi
+# ============================================================
+def scalaj_logi(*strumienie):
+    wynik = list(heapq.merge(*strumienie))
+
+    print(f"Scalono {len(strumienie)} strumienie.")
+    print(f"Łącznie wpisów: {len(wynik)}")
+
+    return wynik
+
+
+# ============================================================
+# FUNKCJA 2 – Filtruj logi
+# ============================================================
+def filtruj_bledy(logi, poziom):
+    wynik = [log for log in logi if log.poziom == poziom]
+
+    print(f"Znaleziono {len(wynik)} wpisów poziomu {poziom}")
+
+    return wynik
+
+
+# ============================================================
+# FUNKCJA 3 – Najnowsze logi
+# ============================================================
+def najnowsze_logi(logi, n):
+    wynik = heapq.nlargest(n, logi, key=lambda log: log.timestamp)
+
+    for log in wynik:
+        print(log)
+
+    return wynik
