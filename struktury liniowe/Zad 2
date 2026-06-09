@@ -1,30 +1,105 @@
+# =============================================================================
+# Zadanie 2 – Lista (List) – dynamiczna struktura danych
+# =============================================================================
+# OPIS PROBLEMU:
+#   Tworzysz prostą aplikację do zarządzania listą zakupów.
+#   Lista jest dynamiczna – możesz w każdej chwili dodawać nowe produkty,
+#   usuwać wybrane oraz sortować całą listę alfabetycznie.
+#
+#   Twoim zadaniem jest:
+#     1. Dodanie kilku produktów do listy zakupów.
+#     2. Sprawdzenie, czy dany produkt już się na liście znajduje.
+#     3. Usunięcie konkretnego produktu z listy.
+#     4. Posortowanie listy alfabetycznie.
+# =============================================================================
+
+# --- Inicjalizacja pustej listy zakupów -------------------------------------
 lista_zakupow: list[str] = []
 
 
+# ============================================================
+# FUNKCJA 1 – Dodaj produkt do listy
+# ============================================================
 def dodaj_produkt(produkt: str) -> None:
+    """
+    Dodaje `produkt` na koniec listy zakupów,
+    o ile jeszcze go tam nie ma.
+    """
+    # 1. Sprawdzamy, czy produkt znajduje się już na liście
     if produkt in lista_zakupow:
+        # 3. Jeśli już jest – informujemy użytkownika o duplikacie
         print(f"'{produkt}' jest już na liście zakupów.")
     else:
+        # 2. Jeśli go nie ma – bezpiecznie dodajemy go na koniec listy
         lista_zakupow.append(produkt)
 
 
+# ============================================================
+# FUNKCJA 2 – Usuń produkt z listy
+# ============================================================
 def usun_produkt(produkt: str) -> None:
+    """
+    Usuwa pierwsze wystąpienie `produktu` z listy zakupów.
+    Jeśli produktu nie ma na liście, informuje o tym użytkownika.
+    """
+    # 1. Sprawdzamy obecność elementu przed próbą usunięcia
     if produkt in lista_zakupow:
+        # 2. Jeśli jest – usuwamy go z tablicy
         lista_zakupow.remove(produkt)
     else:
+        # 3. Jeśli go nie ma – wyświetlamy komunikat zamiast rzucenia błędu ValueError
         print(f"'{produkt}' nie znaleziono na liście zakupów.")
 
 
+# ============================================================
+# FUNKCJA 3 – Posortuj listę zakupów
+# ============================================================
 def posortuj_liste() -> None:
+    """
+    Sortuje listę zakupów alfabetycznie (w miejscu).
+    """
+    # Wywołujemy sortowanie w miejscu z parametrem ignorującym wielkość liter
     lista_zakupow.sort(key=str.lower)
 
 
+# ============================================================
+# FUNKCJA 4 – Wyświetl listę zakupów
+# ============================================================
 def wyswietl_liste() -> None:
+    """
+    Wypisuje wszystkie produkty z listy zakupów wraz z ich
+    numerem porządkowym.
+    """
     if not lista_zakupow:
         print("Lista zakupów jest pusta.")
         return
 
     print(f"Lista zakupów ({len(lista_zakupow)} produkty/ów):")
+    # Wykorzystujemy enumerate do jednoczesnego pobrania indeksu (od 1) i wartości
+    for numer, produkt in enumerate(lista_zakupow, start=1):
+        print(f"  {numer}. {produkt}")
 
-    for i, produkt in enumerate(lista_zakupow, start=1):
-        print(f"{i}. {produkt}")
+
+# =============================================================================
+# Demonstracja działania – uruchom plik, aby sprawdzić swoje rozwiązanie
+# =============================================================================
+if __name__ == "__main__":
+    print("=== Zarządzanie listą zakupów ===\n")
+
+    print("-- Dodawanie produktów --")
+    dodaj_produkt("Mleko")
+    dodaj_produkt("Chleb")
+    dodaj_produkt("Jabłka")
+    dodaj_produkt("Ser")
+    dodaj_produkt("Masło")
+    dodaj_produkt("Mleko")   # duplikat – powinien zostać odrzucony
+    wyswietl_liste()
+
+    print("\n-- Usuwanie produktu 'Ser' --")
+    usun_produkt("Ser")
+    usun_produkt("Herbata")  # nieistniejący – powinien wypisać komunikat
+    wyswietl_liste()
+
+    print("\n-- Sortowanie listy --")
+    posortuj_liste()
+    wyswietl_liste()
