@@ -1,40 +1,130 @@
+# =============================================================================
+# Zadanie 5 – Stos (Stack) – LIFO (Last In, First Out)
+# =============================================================================
+# OPIS PROBLEMU:
+#   Implementujesz mechanizm „Cofnij" (Undo) w prostym edytorze tekstu.
+#   Każda operacja wykonana przez użytkownika (wpisanie tekstu, usunięcie,
+#   formatowanie) trafia na stos historii. Naciśnięcie Ctrl+Z zdejmuje
+#   ostatnią operację ze stosu i cofa jej efekt.
+# =============================================================================
+
 from collections import deque
 
+# --- Stos historii operacji edytora -----------------------------------------
 historia_operacji: deque[str] = deque()
 
 
+# ============================================================
+# FUNKCJA 1 – Wykonaj operację (push)
+# ============================================================
 def wykonaj_operacje(opis: str) -> None:
+    """
+    Odkłada `opis` wykonywanej operacji na wierzchołek stosu (push).
+    """
+    # 1. Dodajemy operację na koniec (wierzchołek stosu)
     historia_operacji.append(opis)
+    
+    # 2. Wypisujemy komunikat o bieżącej liczbie operacji
     print(f"Wykonano: '{opis}'  [operacji na stosie: {len(historia_operacji)}]")
 
 
+# ============================================================
+# FUNKCJA 2 – Cofnij (Undo / pop)
+# ============================================================
 def cofnij() -> None:
+    """
+    Zdejmuje ostatnią operację ze stosu (pop) i symuluje jej cofnięcie.
+    Jeśli stos jest pusty, informuje o tym użytkownika.
+    """
+    # 1. Sprawdzamy, czy na stosie znajdują się jakiekolwiek operacje
     if not historia_operacji:
         print("Brak operacji do cofnięcia.")
-    else:
-        operacja = historia_operacji.pop()
-        print(f"Cofnięto: '{operacja}'")
-        print(f"Pozostało na stosie: {len(historia_operacji)}")
+        return
+        
+    # 2. Jeśli nie jest pusta:
+    # a. Zdejmujemy element z wierzchołka stosu (ostatni dodany element)
+    operacja = historia_operacji.pop()
+    
+    # b. Wyświetlamy komunikat o cofnięciu operacji
+    print(f"Cofnięto: '{operacja}'")
+    
+    # c. Wypisujemy liczbę pozostałych operacji na stosie
+    print(f"Pozostało na stosie: {len(historia_operacji)}")
 
 
+# ============================================================
+# FUNKCJA 3 – Podejrzyj wierzchołek (peek)
+# ============================================================
 def podejrzyj_ostatnia() -> None:
+    """
+    Wypisuje ostatnią operację na stosie bez jej usuwania.
+    Jeśli stos jest pusty, informuje o tym użytkownika.
+    """
+    # 1. Sprawdzamy czy stos nie jest pusty
     if not historia_operacji:
         print("Stos jest pusty – brak operacji.")
-    else:
-        print(f"Ostatnia operacja (peek): '{historia_operacji[-1]}'")
+        return
+        
+    # 2. Odczytujemy element na pozycji [-1] (wierzchołek) bez modyfikacji stosu
+    print(f"Ostatnia operacja (peek): '{historia_operacji[-1]}'")
 
 
+# ============================================================
+# FUNKCJA 4 – Wyświetl historię operacji
+# ============================================================
 def wyswietl_stos() -> None:
+    """
+    Wypisuje wszystkie operacje na stosie.
+    Wierzchołek stosu (ostatnia operacja) jest na górze listy.
+    """
     if not historia_operacji:
         print("Stos operacji jest pusty.")
         return
 
-    print(f"Historia operacji ({len(historia_operacji)} szt.) – wierzchołek na górze:")
-
+    rozmiar = len(historia_operacji)
+    print(f"Historia operacji ({rozmiar} szt.) – wierzchołek na górze:")
+    
+    # Przechodzimy przez stos od końca (od najnowszych do najstarszych)
     for i, operacja in enumerate(reversed(historia_operacji), start=1):
+        # Wyliczamy oryginalny numer operacji (od dołu stosu)
+        numer_operacji = rozmiar - i + 1
+        
+        # Formatujemy znaczniki wierzchołka [TOP] i spodu [BOT] stosu
         if i == 1:
-            print(f"[TOP]  {i}. {operacja}   ← (ostatnia)")
-        elif i == len(historia_operacji):
-            print(f"[BOT]  {i}. {operacja}")
+            print(f"  [TOP]  {numer_operacji}. {operacja}  ← (ostatnia)")
+        elif i == rozmiar:
+            print(f"  [BOT]  {numer_operacji}. {operacja}")
         else:
-            print(f"       {i}. {operacja}")
+            print(f"         {numer_operacji}. {operacja}")
+
+
+# =============================================================================
+# Demonstracja działania – uruchom plik, aby sprawdzić swoje rozwiązanie
+# =============================================================================
+if __name__ == "__main__":
+    print("=== Mechanizm Cofnij / Undo (LIFO) ===\n")
+
+    print("-- Wykonywanie operacji --")
+    wykonaj_operacje("Otwarto nowy dokument")
+    wykonaj_operacje("Wpisano tekst 'Hello World'")
+    wykonaj_operacje("Zmieniono czcionkę na Bold")
+    wykonaj_operacje("Usunięto słowo 'przykład'")
+    wyswietl_stos()
+
+    print("\n-- Podgląd wierzchołka (peek) --")
+    podejrzyj_ostatnia()
+
+    print("\n-- Cofnij (Undo) --")
+    cofnij()
+    wyswietl_stos()
+
+    print("\n-- Cofnij jeszcze dwa razy --")
+    cofnij()
+    cofnij()
+    wyswietl_stos()
+
+    print("\n-- Cofnij ostatnią operację --")
+    cofnij()
+
+    print("\n-- Próba cofnięcia na pustym stosie --")
+    cofnij()
